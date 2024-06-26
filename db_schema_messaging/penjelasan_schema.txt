@@ -1,0 +1,59 @@
+1. Tabel Users
+    •	user_id: ID unik untuk setiap pengguna. Ini adalah kunci utama (PRIMARY KEY).
+    •	phone_number: Nomor telepon unik pengguna. Kolom ini harus unik (UNIQUE) dan tidak boleh kosong (NOT NULL).
+    •	username: Nama pengguna yang bisa dilihat oleh pengguna lain. Kolom ini tidak boleh kosong (NOT NULL).
+
+2. Tabel one_on_one_messages
+    •	message_id: ID unik untuk setiap pesan 1 on 1. Ini adalah kunci utama (PRIMARY KEY).
+    •	sender_id: ID pengguna yang mengirim pesan. Ini adalah kunci asing (FOREIGN KEY) yang merujuk ke kolom user_id di tabel users.
+    •	receiver_id: ID pengguna yang menerima pesan. Ini adalah kunci asing (FOREIGN KEY) yang merujuk ke kolom user_id di tabel users.
+    •	content: Konten teks pesan.
+    •	timestamp: Waktu ketika pesan dikirim, dengan nilai default adalah waktu saat ini.
+    •	status: Status pesan yang bisa bernilai 'sent', 'read', atau 'pending'. Kolom ini memiliki nilai default 'sent'.
+
+3. Tabel groups
+    •	group_id: ID unik untuk setiap grup. Ini adalah kunci utama (PRIMARY KEY).
+    •	group_name: Nama grup. Kolom ini tidak boleh kosong (NOT NULL).
+    •	created_by: ID pengguna yang membuat grup. Ini adalah kunci asing (FOREIGN KEY) yang merujuk ke kolom user_id di tabel users.
+    •	created_at: Waktu ketika grup dibuat, dengan nilai default adalah waktu saat ini.
+
+4. Tabel group_members
+    •	group_id: ID grup yang diikuti oleh anggota. Ini adalah kunci asing (FOREIGN KEY) yang merujuk ke kolom group_id di tabel groups.
+    •	user_id: ID pengguna yang menjadi anggota grup. Ini adalah kunci asing (FOREIGN KEY) yang merujuk ke kolom user_id di tabel users.
+    •	role: Peran anggota dalam grup yang bisa bernilai 'admin' atau 'member'. Kombinasi group_id dan user_id membentuk kunci utama (PRIMARY KEY).
+
+5. group_messages
+    •	message_id: ID unik untuk setiap pesan dalam grup. Ini adalah kunci utama (PRIMARY KEY).
+    •	group_id: ID grup tempat pesan dikirim. Ini adalah kunci asing (FOREIGN KEY) yang merujuk ke kolom group_id di tabel groups.
+    •	sender_id: ID pengguna yang mengirim pesan. Ini adalah kunci asing (FOREIGN KEY) yang merujuk ke kolom user_id di tabel users.
+    •	content: Konten teks pesan.
+    •	timestamp: Waktu ketika pesan dikirim, dengan nilai default adalah waktu saat ini.
+    •	status: Status pesan yang bisa bernilai 'sent', 'read', atau 'pending'. Kolom ini memiliki nilai default 'sent'.
+
+6. Tabel message_status 
+    •	status_id: ID unik untuk setiap status pesan. Ini adalah kunci utama (PRIMARY KEY).
+    •	message_id: ID pesan yang statusnya dicatat. Kolom ini tidak boleh kosong (NOT NULL).
+    •	user_id: ID pengguna yang membaca atau mengirim pesan. Ini adalah kunci asing (FOREIGN KEY) yang merujuk ke kolom user_id di tabel users.
+    •	status: Status pesan yang bisa bernilai 'sent', 'read', atau 'pending'.
+    •	timestamp: Waktu ketika status dicatat, dengan nilai default adalah waktu saat ini.
+    •	Kombinasi message_id dan user_id harus unik untuk memastikan bahwa status setiap pesan dicatat untuk setiap pengguna.
+
+7. Tabel shared_files
+    •	file_id: ID unik untuk setiap file yang dibagikan. Ini adalah kunci utama (PRIMARY KEY).
+    •	message_id: ID pesan yang terkait dengan file yang dibagikan. Ini adalah kunci asing (FOREIGN KEY) yang merujuk ke kolom message_id di tabel one_on_one_messages.
+    •	file_path: Path atau lokasi file yang disimpan.
+    •	file_type: Jenis file yang dibagikan, bisa berupa 'image' atau 'file'.
+    •	uploaded_at: Waktu ketika file diunggah, dengan nilai default adalah waktu saat ini.
+
+8. Tabel group_shared_files
+    •	file_id: ID unik untuk setiap file yang dibagikan dalam grup. Ini adalah kunci utama (PRIMARY KEY).
+    •	message_id: ID pesan dalam grup yang terkait dengan file yang dibagikan. Ini adalah kunci asing (FOREIGN KEY) yang merujuk ke kolom message_id di tabel group_messages.
+    •	file_path: Path atau lokasi file yang disimpan.
+    •	file_type: Jenis file yang dibagikan, bisa berupa 'image' atau 'file'.
+    •	uploaded_at: Waktu ketika file diunggah, dengan nilai default adalah waktu saat ini.
+
+Kondisi Tambahan
+    •	Unik: Setiap nomor telepon hanya dapat digunakan untuk satu akun, memastikan setiap pengguna memiliki satu akun unik yang terhubung dengan nomor telepon mereka.
+    •	Kaskade: Penggunaan ON DELETE CASCADE di kunci asing memastikan bahwa ketika pengguna, pesan, atau grup dihapus, semua data terkait juga dihapus, menjaga integritas data.
+    •	Status Pesan: Menggunakan tabel message_status untuk melacak status pesan memungkinkan sistem untuk mengelola dan menampilkan status pesan dengan lebih efisien, baik untuk pesan 1 on 1 maupun pesan grup.
+    •	Berbagi File: Tabel shared_files dan group_shared_files memungkinkan pengguna untuk berbagi file atau gambar, baik dalam pesan 1 on 1 maupun dalam grup, dengan informasi tentang jenis file dan waktu unggah.
